@@ -34,17 +34,19 @@ used for setting the MQTT Broker Port, default value is `1883`.
 used for setting the MQTT Broker Username, default value is `user`.
 - *MQTT_PASS*</br>
 used for setting the MQTT Broker Password, default value is `password`.
+- *MQTT_TOPIC*</br>
+used for setting the MQTT Broker Topic, default value is `redalert`.
 - *DEBUG_MODE*</br>
-used for setting the script to run in test mode wich will read json from test url.
+used for setting the script to run in test mode, the script will read json from test url, default value is `False`.
+- *DEBUG_URL*</br>
+when DEBUG_MODE set to true, the script will read json from this url, default value is `http://localhost/alerts.json`.
 - *INCLUDE_TEST_ALERTS*</br>
-used to show pikud ha oref tests, default is False.
+used to show pikud ha oref tests, default value is `False`.
 - *REGION*</br>
-used for setting the region for monitoring. default is * (any)
+used for setting the region for monitoring, default value is `*` (any).
 - *NOTIFIERS*</br>
 use apprise notification. you can use multiple notifiers separated by space python for example: </br>
 ```tgram://bottoken/ChatID hassio://user@hostname/accesstoken slack://TokenA/TokenB/TokenC/Channel```
-- *MQTT_TOPIC*</br>
-Custom MQTT Topic. default value is `/redalert`
 
 
 ## Usage
@@ -61,7 +63,7 @@ services:
   redalert:
     image: techblog/redalert
     container_name: redalert
-    restart: always
+    restart: unless-stopped
     environment:
       - MQTT_HOST=[Broker Address]
       - MQTT_USER=[Broker Username]
@@ -69,15 +71,14 @@ services:
       - DEBUG_MODE=False
       - REGION=[* for any or region name)
       - NOTIFIERS=[Apprise notifiers]
-      - INCLUDE_TEST_ALERTS=[False|True]
-    restart: unless-stopped
+      - INCLUDE_TEST_ALERTS=False
 ```
 ### Adding Sensor in Home-Assistant
 #### Get full json (including date and id)
 ```yaml
   - platform: mqtt
     name: "Red Alert"
-    state_topic: "/redalert/"
+    state_topic: "redalert/alerts"
     # unit_of_measurement: '%'
     icon: fas:broadcast-tower
     value_template: "{{ value_json }}"
@@ -88,10 +89,10 @@ services:
 ```yaml
   - platform: mqtt
     name: "Red Alert"
-    state_topic: "/redalert/"
+    state_topic: "redalert/data"
     # unit_of_measurement: '%'
     icon: fas:broadcast-tower
-    value_template: "{{ value_json.data }}"
+    value_template: "{{ value_json }}"
     qos: 1
 ```
 
@@ -99,7 +100,7 @@ services:
 ```yaml
   - platform: mqtt
     name: "Red Alert"
-    state_topic: "/redalert/alarm"
+    state_topic: "redalert/status"
     icon: fas:broadcast-tower
     value_template: "{{ value_json }}"
     qos: 1
