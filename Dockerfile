@@ -1,22 +1,22 @@
-FROM ubuntu:18.04
+FROM python:3.11-slim-buster
 
 ENV PYTHONIOENCODING=utf-8
 ENV LANG=C.UTF-8
 
-#install pip3
-RUN apt update
+WORKDIR /redalert
 
-RUN apt install -yqq python3-pip
+# install packages
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    nano
 
-#install python paho-mqtt client and urllib3
 COPY requirements.txt requirements.txt
-RUN pip3 install --upgrade pip setuptools --no-cache-dir && \
-    pip3 install -r requirements.txt --no-cache-dir
+RUN pip install --no-cache-dir --upgrade pip \
+  && pip install --no-cache-dir -r requirements.txt
 
-
-#Create working directory
+# Create working directory
 RUN mkdir /opt/redalert
-COPY redalert.py /opt/redalert
+COPY . .
 
-
-ENTRYPOINT ["/usr/bin/python3", "/opt/redalert/redalert.py"]
+ENTRYPOINT ["python3", "redalert.py"]
